@@ -269,47 +269,104 @@
     }
     #performance .section-label { color: var(--accent); }
     #performance .section-title { color: var(--cream); }
-    .perf-layout {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6rem;
-      align-items: start;
+
+    /* tab switcher */
+    .perf-tabs {
+      display: flex; gap: 0; margin-bottom: 3rem;
+      border: 1px solid rgba(245,242,236,0.15);
+      width: fit-content;
     }
-    .perf-chart {
+    .perf-tab {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245,242,236,0.4);
+      padding: 0.6rem 1.4rem;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      border-right: 1px solid rgba(245,242,236,0.15);
+      transition: background 0.2s, color 0.2s;
+    }
+    .perf-tab:last-child { border-right: none; }
+    .perf-tab.active { background: rgba(200,169,110,0.15); color: var(--accent); }
+    .perf-tab:hover:not(.active) { color: rgba(245,242,236,0.7); }
+
+    /* panels */
+    .perf-panel { display: none; }
+    .perf-panel.active { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: start; }
+
+    .perf-charts { display: flex; flex-direction: column; gap: 0; }
+    .chart-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(245,242,236,0.35);
+      margin-bottom: 0.6rem;
+    }
+    .chart-wrap { margin-bottom: 2rem; }
+    .chart-inner {
       position: relative;
-      height: 220px;
+      width: 100%;
     }
-    .chart-svg { width: 100%; height: 100%; }
-    .perf-metrics {
-      display: flex; flex-direction: column; gap: 1.5rem;
-    }
+    .chart-inner.tall  { height: 180px; }
+    .chart-inner.short { height: 130px; }
+    .chart-inner canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+
+    .perf-metrics { display: flex; flex-direction: column; gap: 0; }
     .metric-row {
       display: flex; justify-content: space-between; align-items: flex-end;
-      padding-bottom: 1rem;
-      border-bottom: 1px solid rgba(245,242,236,0.1);
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(245,242,236,0.08);
     }
     .metric-name {
       font-family: 'DM Mono', monospace;
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: rgba(245,242,236,0.5);
+      color: rgba(245,242,236,0.45);
     }
     .metric-val {
       font-family: 'DM Serif Display', serif;
-      font-size: 1.6rem;
+      font-size: 1.5rem;
       color: var(--cream);
     }
     .metric-val.pos { color: #7EC8A0; }
-    .disclaimer {
-      margin-top: 3rem;
+    .metric-val.neg { color: #C47C7C; }
+
+    /* strategy badge */
+    .strategy-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
       font-family: 'DM Mono', monospace;
-      font-size: 0.62rem;
-      letter-spacing: 0.08em;
-      color: rgba(245,242,236,0.3);
-      line-height: 1.6;
-      border-top: 1px solid rgba(245,242,236,0.1);
-      padding-top: 1.5rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(200,169,110,0.3);
+      padding: 0.3rem 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .strategy-badge span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--accent);
+      animation: pulse 2s infinite;
+    }
+
+    .disclaimer {
+      margin-top: 2rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.06em;
+      color: rgba(245,242,236,0.25);
+      line-height: 1.7;
+      border-top: 1px solid rgba(245,242,236,0.08);
+      padding-top: 1.2rem;
+    }
+
+    @media (max-width: 900px) {
+      .perf-panel.active { grid-template-columns: 1fr; gap: 3rem; }
     }
 
     /* CONTACT */
@@ -490,20 +547,20 @@
   <!-- STATS -->
   <section id="stats">
     <div class="stat-cell reveal">
-      <div class="stat-num">$2.4<span>B+</span></div>
-      <div class="stat-label">Volume Traded</div>
+      <div class="stat-num">52.7<span>%</span></div>
+      <div class="stat-label">Total ROI (Feb 25 – Feb 26)</div>
     </div>
     <div class="stat-cell reveal">
-      <div class="stat-num">68<span>%</span></div>
-      <div class="stat-label">Win Rate (3yr avg)</div>
+      <div class="stat-num">59.1<span>%</span></div>
+      <div class="stat-label">Win Rate (Daily)</div>
     </div>
     <div class="stat-cell reveal">
-      <div class="stat-num">1.9<span>x</span></div>
+      <div class="stat-num">3.3<span>x</span></div>
       <div class="stat-label">Sharpe Ratio</div>
     </div>
     <div class="stat-cell reveal">
-      <div class="stat-num">12<span>+</span></div>
-      <div class="stat-label">Active Strategies</div>
+      <div class="stat-num">−7.6<span>%</span></div>
+      <div class="stat-label">Max Drawdown</div>
     </div>
   </section>
 
@@ -549,67 +606,83 @@
   <section id="performance">
     <p class="section-label reveal">Track Record</p>
     <h2 class="section-title reveal">Numbers that speak for themselves.</h2>
-    <div class="perf-layout">
-      <div class="perf-chart reveal">
-        <svg class="chart-svg" viewBox="0 0 600 220" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- grid lines -->
-          <line x1="0" y1="200" x2="600" y2="200" stroke="rgba(245,242,236,0.08)" stroke-width="1"/>
-          <line x1="0" y1="150" x2="600" y2="150" stroke="rgba(245,242,236,0.08)" stroke-width="1"/>
-          <line x1="0" y1="100" x2="600" y2="100" stroke="rgba(245,242,236,0.08)" stroke-width="1"/>
-          <line x1="0" y1="50"  x2="600" y2="50"  stroke="rgba(245,242,236,0.08)" stroke-width="1"/>
-          <!-- fill area -->
-          <path d="M0,190 C40,185 80,178 120,165 C160,152 200,148 240,130 C280,112 320,118 360,95 C400,72 440,80 480,58 C520,36 560,28 600,20 L600,200 L0,200 Z"
-                fill="url(#chartGrad)" opacity="0.25"/>
-          <!-- line -->
-          <path d="M0,190 C40,185 80,178 120,165 C160,152 200,148 240,130 C280,112 320,118 360,95 C400,72 440,80 480,58 C520,36 560,28 600,20"
-                stroke="#C8A96E" stroke-width="2" fill="none"/>
-          <!-- benchmark line -->
-          <path d="M0,190 C100,182 200,165 300,155 C400,145 500,130 600,118"
-                stroke="rgba(245,242,236,0.2)" stroke-width="1.5" stroke-dasharray="4 4" fill="none"/>
-          <!-- labels -->
-          <text x="8" y="215" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.3)">2022</text>
-          <text x="148" y="215" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.3)">2023</text>
-          <text x="295" y="215" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.3)">2024</text>
-          <text x="445" y="215" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.3)">2025</text>
-          <!-- legend -->
-          <line x1="450" y1="14" x2="470" y2="14" stroke="#C8A96E" stroke-width="2"/>
-          <text x="475" y="18" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.6)">Apex</text>
-          <line x1="450" y1="30" x2="470" y2="30" stroke="rgba(245,242,236,0.3)" stroke-width="1.5" stroke-dasharray="4 4"/>
-          <text x="475" y="34" font-family="monospace" font-size="9" fill="rgba(245,242,236,0.3)">Benchmark</text>
-          <defs>
-            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#C8A96E"/>
-              <stop offset="100%" stop-color="#C8A96E" stop-opacity="0"/>
-            </linearGradient>
-          </defs>
-        </svg>
+
+    <!-- Tab switcher -->
+    <div class="perf-tabs reveal">
+      <button class="perf-tab active" onclick="switchTab('combined')">Combined</button>
+      <button class="perf-tab" onclick="switchTab('nap')">NAP — Nifty</button>
+      <button class="perf-tab" onclick="switchTab('sap')">SAP — Sensex</button>
+    </div>
+
+    <!-- COMBINED panel -->
+    <div class="perf-panel active" id="panel-combined">
+      <div class="perf-charts">
+        <div class="chart-wrap">
+          <div class="chart-label">Cumulative ROI — Feb 2025 to Feb 2026</div>
+          <div class="chart-inner tall"><canvas id="cumChartCombined"></canvas></div>
+        </div>
+        <div class="chart-wrap">
+          <div class="chart-label">Monthly P&L — NAP vs SAP (₹)</div>
+          <div class="chart-inner short"><canvas id="barChartCombined"></canvas></div>
+        </div>
       </div>
-      <div class="perf-metrics reveal">
-        <div class="metric-row">
-          <span class="metric-name">Annualized Return</span>
-          <span class="metric-val pos">+24.7%</span>
+      <div class="perf-metrics">
+        <div class="strategy-badge"><span></span>NAP + SAP · ₹5L Capital</div>
+        <div class="metric-row"><span class="metric-name">Total ROI</span><span class="metric-val pos">+52.7%</span></div>
+        <div class="metric-row"><span class="metric-name">Total P&L</span><span class="metric-val pos">₹2,63,686</span></div>
+        <div class="metric-row"><span class="metric-name">Max Drawdown</span><span class="metric-val neg">−7.6%</span></div>
+        <div class="metric-row"><span class="metric-name">Sharpe Ratio</span><span class="metric-val">3.30</span></div>
+        <div class="metric-row"><span class="metric-name">Win Rate</span><span class="metric-val pos">59.1%</span></div>
+        <div class="metric-row"><span class="metric-name">Trading Days</span><span class="metric-val">254</span></div>
+        <p class="disclaimer">Live track record Feb 2025 – Feb 2026. Combined NAP + SAP on ₹5L capital. Past performance does not guarantee future results. Trading involves substantial risk of loss.</p>
+      </div>
+    </div>
+
+    <!-- NAP panel -->
+    <div class="perf-panel" id="panel-nap">
+      <div class="perf-charts">
+        <div class="chart-wrap">
+          <div class="chart-label">Cumulative ROI — NAP (Nifty Apex Predator)</div>
+          <div class="chart-inner tall"><canvas id="cumChartNAP"></canvas></div>
         </div>
-        <div class="metric-row">
-          <span class="metric-name">Max Drawdown</span>
-          <span class="metric-val">−8.3%</span>
+        <div class="chart-wrap">
+          <div class="chart-label">Monthly P&L — NAP (₹)</div>
+          <div class="chart-inner short"><canvas id="barChartNAP"></canvas></div>
         </div>
-        <div class="metric-row">
-          <span class="metric-name">Sharpe Ratio</span>
-          <span class="metric-val">1.91</span>
+      </div>
+      <div class="perf-metrics">
+        <div class="strategy-badge"><span></span>NAP · Nifty · ₹2.5L Capital</div>
+        <div class="metric-row"><span class="metric-name">Total ROI</span><span class="metric-val pos">+65.6%</span></div>
+        <div class="metric-row"><span class="metric-name">Total P&L</span><span class="metric-val pos">₹1,63,961</span></div>
+        <div class="metric-row"><span class="metric-name">Max Drawdown</span><span class="metric-val neg">−11.4%</span></div>
+        <div class="metric-row"><span class="metric-name">Sharpe Ratio</span><span class="metric-val">3.34</span></div>
+        <div class="metric-row"><span class="metric-name">Win Rate</span><span class="metric-val pos">62.0%</span></div>
+        <div class="metric-row"><span class="metric-name">Trading Days</span><span class="metric-val">258</span></div>
+        <p class="disclaimer">Live track record Feb 2025 – Feb 2026. Nifty Apex Predator intraday strategy on ₹2.5L capital. Past performance does not guarantee future results.</p>
+      </div>
+    </div>
+
+    <!-- SAP panel -->
+    <div class="perf-panel" id="panel-sap">
+      <div class="perf-charts">
+        <div class="chart-wrap">
+          <div class="chart-label">Cumulative ROI — SAP (Sensex Apex Predator)</div>
+          <div class="chart-inner tall"><canvas id="cumChartSAP"></canvas></div>
         </div>
-        <div class="metric-row">
-          <span class="metric-name">Sortino Ratio</span>
-          <span class="metric-val">2.45</span>
+        <div class="chart-wrap">
+          <div class="chart-label">Monthly P&L — SAP (₹)</div>
+          <div class="chart-inner short"><canvas id="barChartSAP"></canvas></div>
         </div>
-        <div class="metric-row">
-          <span class="metric-name">Beta vs S&P 500</span>
-          <span class="metric-val">0.22</span>
-        </div>
-        <div class="metric-row">
-          <span class="metric-name">Win Rate</span>
-          <span class="metric-val pos">68.4%</span>
-        </div>
-        <p class="disclaimer">Past performance does not guarantee future results. All figures are hypothetical and based on backtested data unless otherwise stated. Trading involves substantial risk of loss.</p>
+      </div>
+      <div class="perf-metrics">
+        <div class="strategy-badge"><span></span>SAP · Sensex · ₹2.5L Capital</div>
+        <div class="metric-row"><span class="metric-name">Total ROI</span><span class="metric-val pos">+41.9%</span></div>
+        <div class="metric-row"><span class="metric-name">Total P&L</span><span class="metric-val pos">₹1,04,656</span></div>
+        <div class="metric-row"><span class="metric-name">Max Drawdown</span><span class="metric-val neg">−7.7%</span></div>
+        <div class="metric-row"><span class="metric-name">Sharpe Ratio</span><span class="metric-val">2.63</span></div>
+        <div class="metric-row"><span class="metric-name">Win Rate</span><span class="metric-val pos">57.1%</span></div>
+        <div class="metric-row"><span class="metric-name">Trading Days</span><span class="metric-val">254</span></div>
+        <p class="disclaimer">Live track record Feb 2025 – Feb 2026. Sensex Apex Predator intraday strategy on ₹2.5L capital. Past performance does not guarantee future results.</p>
       </div>
     </div>
   </section>
@@ -621,7 +694,7 @@
       <h2 class="section-title">Let's talk about your capital.</h2>
       <p>Whether you're an institutional investor, family office, or a trader looking for systematic edge — we'd like to hear from you.</p>
       <div class="contact-detail">
-        <a href="mailto:hello@apexalgos.com">hello@apexalgos.com</a>
+        <a href="/cdn-cgi/l/email-protection#5139343d3d3e1130213429303d363e227f323e3c"><span class="__cf_email__" data-cfemail="1179747d7d7e5170617469707d767e623f727e7c">[email&#160;protected]</span></a>
         <a href="#">Schedule a Call →</a>
       </div>
     </div>
@@ -652,6 +725,7 @@
     <p>Built for performance. Engineered with discipline.</p>
   </footer>
 
+
   <script>
     // Scroll reveal
     const reveals = document.querySelectorAll('.reveal');
@@ -673,6 +747,133 @@
       btn.style.background = '#4A7C59';
       setTimeout(() => { btn.textContent = 'Send Message'; btn.style.background = ''; }, 3000);
     }
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.perf-tab').forEach((t,i) => {
+        t.classList.toggle('active', ['combined','nap','sap'][i] === tab);
+      });
+      document.querySelectorAll('.perf-panel').forEach(p => {
+        p.classList.toggle('active', p.id === 'panel-' + tab);
+      });
+    }
+
+    // Load Chart.js then init all charts
+    function loadScript(src, cb) {
+      const s = document.createElement('script');
+      s.src = src;
+      s.onload = cb;
+      s.onerror = () => console.warn('Chart.js failed to load');
+      document.head.appendChild(s);
+    }
+
+    loadScript('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js', function() {
+      const months = ['Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26'];
+
+      // ── Real data from Apex Algos P&L Sheet ──
+      const nap_monthly  = [21674, -13125, -2368, 41408, 21632, 3692, 18159, 10466, 3346, 9932, 16514, 24989, 8326];
+      const sap_monthly  = [12824,   2846,-15970,  8268, 25972,16376, 15001,  2290,  4470,  2661, 14746, 13953, 1332];
+      const comb_monthly = nap_monthly.map((v,i) => v + sap_monthly[i]);
+
+      // Cumulative ROI arrays
+      function cumROI(monthly, capital) {
+        let cum = 0;
+        return monthly.map(v => { cum += v; return parseFloat((cum/capital*100).toFixed(1)); });
+      }
+      const nap_cum  = cumROI(nap_monthly,  250000);
+      const sap_cum  = cumROI(sap_monthly,  250000);
+      const comb_cum = cumROI(comb_monthly, 500000);
+
+      const grid   = 'rgba(245,242,236,0.07)';
+      const text   = 'rgba(245,242,236,0.4)';
+      const accent = '#C8A96E';
+      const blue   = '#7EB3C8';
+
+      Chart.defaults.font.family = "'DM Mono', monospace";
+      Chart.defaults.font.size   = 10;
+
+      function makeGradient(ctx, color) {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 160);
+        g.addColorStop(0, color.replace('1)', '0.22)'));
+        g.addColorStop(1, color.replace('1)', '0)'));
+        return g;
+      }
+
+      function lineChart(id, datasets) {
+        new Chart(document.getElementById(id), {
+          type: 'line',
+          data: { labels: months, datasets },
+          options: {
+            responsive: true, maintainAspectRatio: false, resizeDelay: 0,
+            plugins: {
+              legend: { display: datasets.length > 1, labels: { color: text, boxWidth: 10, padding: 12 } },
+              tooltip: { backgroundColor: '#1a1a18', titleColor: text, callbacks: {
+                label: ctx => ' ' + ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(1) + '%'
+              }}
+            },
+            scales: {
+              x: { grid: { color: grid }, ticks: { color: text } },
+              y: { grid: { color: grid }, ticks: { color: text, callback: v => v + '%' } }
+            }
+          }
+        });
+      }
+
+      function barChart(id, datasets, labels) {
+        new Chart(document.getElementById(id), {
+          type: 'bar',
+          data: { labels: months, datasets },
+          options: {
+            responsive: true, maintainAspectRatio: false, resizeDelay: 0,
+            plugins: {
+              legend: { display: labels, labels: { color: text, boxWidth: 10, padding: 12 } },
+              tooltip: { backgroundColor: '#1a1a18', titleColor: text, callbacks: {
+                label: ctx => ' ' + ctx.dataset.label + ': Rs.' + ctx.parsed.y.toLocaleString('en-IN')
+              }}
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { color: text } },
+              y: { grid: { color: grid }, ticks: { color: text, callback: v => 'Rs.' + (v/1000).toFixed(0) + 'k' } }
+            }
+          }
+        });
+      }
+
+      // COMBINED charts — NAP + SAP lines overlaid
+      lineChart('cumChartCombined', [
+        { label: 'Combined', data: comb_cum, borderColor: accent, borderWidth: 2, pointRadius: 3,
+          pointBackgroundColor: accent, fill: true,
+          backgroundColor: ctx => makeGradient(ctx, 'rgba(200,169,110,1)'), tension: 0.4 },
+        { label: 'NAP', data: nap_cum, borderColor: 'rgba(126,179,200,0.7)', borderWidth: 1.5,
+          pointRadius: 0, fill: false, tension: 0.4, borderDash: [4,3] },
+        { label: 'SAP', data: sap_cum, borderColor: 'rgba(126,200,160,0.7)', borderWidth: 1.5,
+          pointRadius: 0, fill: false, tension: 0.4, borderDash: [4,3] },
+      ]);
+      barChart('barChartCombined', [
+        { label: 'NAP', data: nap_monthly, backgroundColor: 'rgba(200,169,110,0.7)', borderRadius: 2, borderSkipped: false },
+        { label: 'SAP', data: sap_monthly, backgroundColor: 'rgba(126,179,200,0.6)', borderRadius: 2, borderSkipped: false },
+      ], true);
+
+      // NAP charts
+      lineChart('cumChartNAP', [
+        { label: 'NAP', data: nap_cum, borderColor: accent, borderWidth: 2, pointRadius: 3,
+          pointBackgroundColor: accent, fill: true,
+          backgroundColor: ctx => makeGradient(ctx, 'rgba(200,169,110,1)'), tension: 0.4 },
+      ]);
+      barChart('barChartNAP', [
+        { label: 'NAP', data: nap_monthly, backgroundColor: nap_monthly.map(v => v >= 0 ? 'rgba(200,169,110,0.75)' : 'rgba(184,92,92,0.65)'), borderRadius: 2, borderSkipped: false },
+      ], false);
+
+      // SAP charts
+      lineChart('cumChartSAP', [
+        { label: 'SAP', data: sap_cum, borderColor: blue, borderWidth: 2, pointRadius: 3,
+          pointBackgroundColor: blue, fill: true,
+          backgroundColor: ctx => makeGradient(ctx, 'rgba(126,179,200,1)'), tension: 0.4 },
+      ]);
+      barChart('barChartSAP', [
+        { label: 'SAP', data: sap_monthly, backgroundColor: sap_monthly.map(v => v >= 0 ? 'rgba(126,179,200,0.75)' : 'rgba(184,92,92,0.65)'), borderRadius: 2, borderSkipped: false },
+      ], false);
+    });
   </script>
 </body>
 </html>
