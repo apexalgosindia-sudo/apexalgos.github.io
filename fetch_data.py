@@ -102,11 +102,25 @@ def build_data():
 
     comb_daily = [n + s for n, s in zip(nap_daily, sap_daily)]
 
+    # Build daily arrays for the daily view toggle
+    # Trim to same length
+    min_len = min(len(nap_daily), len(sap_daily))
+    nap_d = nap_daily[:min_len]
+    sap_d = sap_daily[:min_len]
+
+    # Generate date labels for daily data (approximate, based on count)
+    # The actual dates come from the sheet parse — use index-based labels
+    # We'll store them as-is; the sheet parser can add real dates later
+    daily_dates = [f"D{i+1}" for i in range(min_len)]
+
     data = {
         'updated':     datetime.date.today().isoformat(),
         'months':      months,
         'nap_monthly': nap_m,
         'sap_monthly': sap_m,
+        'nap_daily':   [round(v, 2) for v in nap_d],
+        'sap_daily':   [round(v, 2) for v in sap_d],
+        'daily_dates': daily_dates,
         'stats': {
             'nap': {
                 'roi':      round(sum(nap_m) / CAP_NAP * 100, 1),
