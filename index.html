@@ -907,53 +907,36 @@
     async function fetchSheetData() {
       const status = document.getElementById('dataStatus');
       try {
-        // Use CSV export by sheet name — no CORS issues on GitHub Pages
-        const sheetName = encodeURIComponent('Monthly P&L');
-        const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${sheetName}`;
-        const res  = await fetch(url, { redirect: 'follow' });
+        // Load data.json — committed to the repo by GitHub Action (no CORS issues)
+        const res  = await fetch('./data.json?t=' + Date.now());
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const csv  = await res.text();
+        const d = await res.json();
 
-        const months_live = [], nap_live = [], sap_live = [];
+        updateCharts(d.months, d.nap_monthly, d.sap_monthly);
+        updateMetrics(d.nap_monthly, d.sap_monthly);
 
-        // Parse CSV — skip header rows (rows 1-8), data starts row 9
-        const lines = csv.trim().split('\n').slice(8); // skip 8 header rows
+        // Update stats with server-computed values
+        const s = d.stats;
+        const fmt = n => '₹' + Math.abs(n).toLocaleString('en-IN');
+        const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+        setEl('m-comb-roi', '+' + s.comb.roi + '%');
+        setEl('m-comb-pnl', fmt(s.comb.pnl));
+        setEl('m-comb-dd',  s.comb.max_dd + '%');
+        setEl('m-nap-roi',  '+' + s.nap.roi + '%');
+        setEl('m-nap-pnl',  fmt(s.nap.pnl));
+        setEl('m-sap-roi',  '+' + s.sap.roi + '%');
+        setEl('m-sap-pnl',  fmt(s.sap.pnl));
+        const statEl = document.getElementById('stat-roi');
+        if (statEl) statEl.innerHTML = s.comb.roi + '<span>%</span>';
 
-        lines.forEach(line => {
-          if (!line.trim()) return;
-          // Simple CSV split (fields may be quoted)
-          const cols = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || line.split(',');
-          const clean = cols.map(c => c.replace(/^"|"$/g, '').trim());
-
-          const rawDate = clean[0];
-          if (!rawDate || rawDate === 'Date') return;
-
-          // Parse date → "Mon YY" label
-          const d = new Date(rawDate);
-          if (isNaN(d)) return;
-          const label = d.toLocaleDateString('en-US', { month: 'short', year: '2-digit' });
-
-          const nap = parseFloat(clean[1]) || 0;
-          const sap = parseFloat(clean[3]) || 0;
-
-          // Sheet is newest-first, so unshift to reverse to oldest-first
-          months_live.unshift(label);
-          nap_live.unshift(nap);
-          sap_live.unshift(sap);
-        });
-
-        if (nap_live.length > 0) {
-          updateCharts(months_live, nap_live, sap_live);
-          updateMetrics(nap_live, sap_live);
-          if (status) {
-            status.textContent = 'LIVE';
-            status.style.background = 'rgba(78,160,110,0.12)';
-            status.style.borderColor = 'rgba(78,160,110,0.35)';
-            status.style.color = '#7EC8A0';
-          }
+        if (status) {
+          status.textContent = 'LIVE · ' + d.updated;
+          status.style.background = 'rgba(78,160,110,0.12)';
+          status.style.borderColor = 'rgba(78,160,110,0.35)';
+          status.style.color = '#7EC8A0';
         }
       } catch(e) {
-        console.warn('Sheet fetch failed, using cached data:', e);
+        console.warn('data.json load failed, using inline fallback:', e.message);
         if (status) { status.textContent = 'CACHED'; }
       }
     }
