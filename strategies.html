@@ -373,8 +373,101 @@
     @media (max-width: 700px) {
       nav { padding: 0 1.2rem; }
       .nav-links { display: none; }
+      .hamburger { display: flex; }
       main { padding: 90px 1.2rem 4rem; }
       .strategy-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── HAMBURGER MENU ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      z-index: 200;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--cream);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(237,230,214,0.08);
+      padding: 1.5rem 2rem;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--mid);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(237,230,214,0.07);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { color: var(--accent); }
+    :root.light .mobile-nav a { color: var(--mid); }
+    :root.light .mobile-nav a:hover { color: var(--accent); }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid rgba(237,230,214,0.08);
+      padding: 1.4rem 4rem;
+      background: var(--surface);
+    }
+    .footer-disclaimer-text {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 400;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 900px;
+      margin: 0 auto;
+      text-align: center;
+      padding-bottom: 1.2rem;
+      border-bottom: 1px solid rgba(237,230,214,0.07);
+    }
+    .footer-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 1.2rem;
+    }
+    .footer-bottom p {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.62rem;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+    :root.light footer { background: var(--surface); border-color: var(--rule); }
+    :root.light .footer-disclaimer-text { color: var(--muted); }
+    :root.light .footer-bottom p { color: var(--muted); }
+    @media (max-width: 700px) {
+      footer { padding: 1.2rem 1.5rem; }
+      .footer-bottom { flex-direction: column; gap: 0.4rem; text-align: center; }
     }
   </style>
 </head>
@@ -395,13 +488,22 @@
         <span class="icon" id="themeIcon">&#9728;</span><span id="themeLabel">Light</span>
       </button>
       <a class="nav-cta" href="index.html#contact">Get Started</a>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="index.html#features">Strategies</a>
+    <a href="index.html#performance">Performance</a>
+    <a href="strategies.html">Share Codes</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
 
   <main>
     <p class="page-label">Tradetron Strategy Links</p>
     <h1 class="page-title">Share Codes &amp;<br><em>Strategy Links</em></h1>
-    <p class="page-subtitle">Use the share codes below to subscribe to our strategies on Tradetron. Copy the code, go to the strategy link, and use "Subscribe via Share Code".</p>
+    <p class="page-subtitle">Use the share codes below to check live performance on Tradetron".</p>
 
     <!-- Google Sheet Banner -->
     <a class="sheet-banner" href="https://docs.google.com/spreadsheets/d/1Rgy-HH8bcY7guN7PuH6biiK-JVV-PaFOH5aDII8oVf8/edit?usp=sharing" target="_blank" rel="noopener">
@@ -736,6 +838,17 @@
   </main>
 
   <script>
+
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      const isOpen = nav.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+    }
+    function closeMobileNav() {
+      document.getElementById('mobileNav').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+    }
     // ── Theme toggle ──────────────────────────────────────────────────────────
     function toggleTheme() {
       const isLight = document.documentElement.classList.toggle('light');
@@ -781,5 +894,14 @@
       });
     }
   </script>
+
+  <!-- FOOTER -->
+  <footer>
+    <p class="footer-disclaimer-text">&#9888; Disclaimer: Past performance is not a guarantee of future results. As per SEBI, 93% of traders lose money in F&amp;O. Apex Algos is not a SEBI-registered advisor. You are responsible for your trading decisions &amp; losses.</p>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Apex Algos. All rights reserved.</p>
+      <p>Built for performance. Engineered with discipline.</p>
+    </div>
+  </footer>
 </body>
 </html>
