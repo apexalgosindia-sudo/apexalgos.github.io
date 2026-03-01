@@ -867,6 +867,7 @@
     @media (max-width: 900px) {
       nav { padding: 1.2rem 2rem; }
       .nav-links { display: none; }
+      .hamburger { display: flex; }
       #hero { padding: 0 2rem 4rem; }
       .hero-ticker { display: none; }
       #stats { grid-template-columns: repeat(2, 1fr); }
@@ -907,6 +908,59 @@
     ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 0; }
     ::-webkit-scrollbar-thumb:hover { background: var(--tab-border); }
 
+
+    /* ── HAMBURGER MENU ── */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      z-index: 200;
+    }
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--cream);
+      border-radius: 2px;
+      transition: all 0.25s ease;
+      transform-origin: center;
+    }
+    .hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+    .hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      top: 64px; left: 0; right: 0;
+      background: var(--nav-bg);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(237,230,214,0.08);
+      padding: 1.5rem 2rem;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      font-family: 'Jost', sans-serif;
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--mid);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      padding: 0.9rem 0;
+      border-bottom: 1px solid rgba(237,230,214,0.07);
+      transition: color 0.2s;
+    }
+    .mobile-nav a:last-child { border-bottom: none; }
+    .mobile-nav a:hover { color: var(--accent); }
+    :root.light .mobile-nav a { color: var(--mid); }
+    :root.light .mobile-nav a:hover { color: var(--accent); }
   </style>
 </head>
 <body>
@@ -928,8 +982,17 @@
         <span class="icon" id="themeIcon">☀</span><span id="themeLabel">Light</span>
       </button>
       <a class="nav-cta" href="#contact">Get Started</a>
+      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </nav>
+  <div class="mobile-nav" id="mobileNav">
+    <a href="#features" onclick="closeMobileNav()">Strategies</a>
+    <a href="#performance" onclick="closeMobileNav()">Performance</a>
+    <a href="strategies.html" onclick="closeMobileNav()">Share Codes</a>
+    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+  </div>
 
   <!-- HERO -->
   <section id="hero">
@@ -1280,6 +1343,17 @@
     }
 
     // ── Theme toggle ──────────────────────────────────────────────────────────
+
+    function toggleMobileNav() {
+      const nav = document.getElementById('mobileNav');
+      const btn = document.getElementById('hamburger');
+      const isOpen = nav.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+    }
+    function closeMobileNav() {
+      document.getElementById('mobileNav').classList.remove('open');
+      document.getElementById('hamburger').classList.remove('open');
+    }
     function toggleTheme() {
       const isLight = document.documentElement.classList.toggle('light');
       document.getElementById('themeIcon').textContent  = isLight ? '◐' : '☀';
