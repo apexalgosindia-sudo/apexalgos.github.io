@@ -982,16 +982,29 @@
         <span class="icon" id="themeIcon">☀</span><span id="themeLabel">Light</span>
       </button>
       <a class="nav-cta" href="#contact">Get Started</a>
-      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false" onclick="
+        var nav = document.getElementById('mobileNav');
+        var btn = this;
+        var isOpen = nav.classList.contains('open');
+        if (isOpen) {
+          nav.classList.remove('open');
+          btn.classList.remove('open');
+          btn.setAttribute('aria-expanded', 'false');
+        } else {
+          nav.classList.add('open');
+          btn.classList.add('open');
+          btn.setAttribute('aria-expanded', 'true');
+        }
+      ">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
   <div class="mobile-nav" id="mobileNav">
-    <a href="#features">Strategies</a>
-    <a href="#performance">Performance</a>
-    <a href="strategies.html">Share Codes</a>
-    <a href="#contact">Contact</a>
+    <a href="#features" onclick="document.getElementById('mobileNav').classList.remove('open'); document.getElementById('hamburger').classList.remove('open');">Strategies</a>
+    <a href="#performance" onclick="document.getElementById('mobileNav').classList.remove('open'); document.getElementById('hamburger').classList.remove('open');">Performance</a>
+    <a href="strategies.html" onclick="document.getElementById('mobileNav').classList.remove('open'); document.getElementById('hamburger').classList.remove('open');">Share Codes</a>
+    <a href="#contact" onclick="document.getElementById('mobileNav').classList.remove('open'); document.getElementById('hamburger').classList.remove('open');">Contact</a>
   </div>
 
   <!-- HERO -->
@@ -1882,43 +1895,15 @@
     fetchTicker();
     setInterval(fetchTicker, 30000);
 
-    // ── Mobile Menu Toggle ──────────────────────────────────────────────────
-    const burger = document.getElementById('hamburger');
-    const mobileNav = document.getElementById('mobileNav');
-    
-    if (burger && mobileNav) {
-      burger.addEventListener('click', () => {
-        const isOpen = mobileNav.classList.contains('open');
-        if (isOpen) {
-          mobileNav.classList.remove('open');
-          burger.classList.remove('open');
-          burger.setAttribute('aria-expanded', 'false');
-        } else {
-          mobileNav.classList.add('open');
-          burger.classList.add('open');
-          burger.setAttribute('aria-expanded', 'true');
-        }
-      });
-
-      // Close menu when clicking on a link
-      const mobileLinks = mobileNav.querySelectorAll('a');
-      mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
-          mobileNav.classList.remove('open');
-          burger.classList.remove('open');
-          burger.setAttribute('aria-expanded', 'false');
-        });
-      });
-
-      // Close menu when clicking outside
-      document.addEventListener('click', (e) => {
-        if (!mobileNav.contains(e.target) && !burger.contains(e.target) && mobileNav.classList.contains('open')) {
-          mobileNav.classList.remove('open');
-          burger.classList.remove('open');
-          burger.setAttribute('aria-expanded', 'false');
-        }
-      });
-    }
+    // ── Close mobile menu when clicking outside ──────────────────────────────
+    document.onclick = function(e) {
+      var nav = document.getElementById('mobileNav');
+      var burger = document.getElementById('hamburger');
+      if (nav && burger && !nav.contains(e.target) && !burger.contains(e.target)) {
+        nav.classList.remove('open');
+        burger.classList.remove('open');
+      }
+    };
 
   </script>
 </body>
