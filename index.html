@@ -982,16 +982,16 @@
         <span class="icon" id="themeIcon">☀</span><span id="themeLabel">Light</span>
       </button>
       <a class="nav-cta" href="#contact">Get Started</a>
-      <button class="hamburger" id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+      <button class="hamburger" id="hamburger" aria-label="Menu" aria-expanded="false">
         <span></span><span></span><span></span>
       </button>
     </div>
   </nav>
   <div class="mobile-nav" id="mobileNav">
-    <a href="#features" onclick="closeMobileNav()">Strategies</a>
-    <a href="#performance" onclick="closeMobileNav()">Performance</a>
-    <a href="strategies.html" onclick="closeMobileNav()">Share Codes</a>
-    <a href="#contact" onclick="closeMobileNav()">Contact</a>
+    <a href="#features">Strategies</a>
+    <a href="#performance">Performance</a>
+    <a href="strategies.html">Share Codes</a>
+    <a href="#contact">Contact</a>
   </div>
 
   <!-- HERO -->
@@ -1344,16 +1344,6 @@
 
     // ── Theme toggle ──────────────────────────────────────────────────────────
 
-    function toggleMobileNav() {
-      const nav = document.getElementById('mobileNav');
-      const btn = document.getElementById('hamburger');
-      const isOpen = nav.classList.toggle('open');
-      btn.classList.toggle('open', isOpen);
-    }
-    function closeMobileNav() {
-      document.getElementById('mobileNav').classList.remove('open');
-      document.getElementById('hamburger').classList.remove('open');
-    }
     function toggleTheme() {
       const isLight = document.documentElement.classList.toggle('light');
       document.getElementById('themeIcon').textContent  = isLight ? '◐' : '☀';
@@ -1893,7 +1883,7 @@
     setInterval(fetchTicker, 30000);
 
     // ── Mobile Menu Toggle ──────────────────────────────────────────────────
-    const burger = document.getElementById('burger');
+    const burger = document.getElementById('hamburger');
     const mobileNav = document.getElementById('mobileNav');
     
     if (burger && mobileNav) {
@@ -1901,9 +1891,11 @@
         const isOpen = mobileNav.classList.contains('open');
         if (isOpen) {
           mobileNav.classList.remove('open');
+          burger.classList.remove('open');
           burger.setAttribute('aria-expanded', 'false');
         } else {
           mobileNav.classList.add('open');
+          burger.classList.add('open');
           burger.setAttribute('aria-expanded', 'true');
         }
       });
@@ -1913,6 +1905,7 @@
       mobileLinks.forEach(link => {
         link.addEventListener('click', () => {
           mobileNav.classList.remove('open');
+          burger.classList.remove('open');
           burger.setAttribute('aria-expanded', 'false');
         });
       });
@@ -1921,6 +1914,7 @@
       document.addEventListener('click', (e) => {
         if (!mobileNav.contains(e.target) && !burger.contains(e.target) && mobileNav.classList.contains('open')) {
           mobileNav.classList.remove('open');
+          burger.classList.remove('open');
           burger.setAttribute('aria-expanded', 'false');
         }
       });
