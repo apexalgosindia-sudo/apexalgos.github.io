@@ -285,6 +285,21 @@
       background: var(--accent);
       animation: pulse 2s infinite;
     }
+    .ticker-market-status {
+      display: flex; align-items: center; gap: 0.4rem;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.58rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.2rem;
+    }
+    .market-dot {
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--muted);
+    }
+    .market-dot.open  { background: #3FE088; box-shadow: 0 0 5px rgba(63,224,136,0.5); animation: pulse 2s infinite; }
+    .market-dot.closed { background: var(--neg); }
 
     /* STATS */
     #stats {
@@ -902,24 +917,28 @@
       <a class="btn-primary" href="#features">Explore Strategies</a>
       <a class="btn-ghost" href="#performance">View Performance →</a>
     </div>
-    <div class="hero-ticker">
-      <div class="ticker-item">
-        <div class="ticker-dot"></div>
-        <span class="ticker-symbol">ES</span>
-        <span class="ticker-val">5,782.25</span>
-        <span class="ticker-change">+0.34%</span>
+    <div class="hero-ticker" id="heroTicker">
+      <div class="ticker-market-status" id="marketStatus">
+        <span class="market-dot" id="marketDot"></span>
+        <span id="marketLabel">Checking...</span>
       </div>
       <div class="ticker-item">
         <div class="ticker-dot"></div>
-        <span class="ticker-symbol">NQ</span>
-        <span class="ticker-val">20,413.50</span>
-        <span class="ticker-change">+0.61%</span>
+        <span class="ticker-symbol">NIFTY</span>
+        <span class="ticker-val" id="tick-nifty-val">—</span>
+        <span class="ticker-change" id="tick-nifty-chg">—</span>
       </div>
       <div class="ticker-item">
         <div class="ticker-dot"></div>
-        <span class="ticker-symbol">CL</span>
-        <span class="ticker-val">78.14</span>
-        <span class="ticker-change neg">−0.12%</span>
+        <span class="ticker-symbol">SENSEX</span>
+        <span class="ticker-val" id="tick-sensex-val">—</span>
+        <span class="ticker-change" id="tick-sensex-chg">—</span>
+      </div>
+      <div class="ticker-item">
+        <div class="ticker-dot"></div>
+        <span class="ticker-symbol">INDIA VIX</span>
+        <span class="ticker-val" id="tick-vix-val">—</span>
+        <span class="ticker-change" id="tick-vix-chg">—</span>
       </div>
     </div>
   </section>
@@ -1685,6 +1704,78 @@
       updateMetrics(nap_monthly, sap_monthly);
       fetchSheetData();
     });
+
+    // ── Live Market Ticker — NIFTY / SENSEX / India VIX ─────────────────────
+    const TICKER_SYMBOLS = [
+      { sym: '^NSEI',     valId: 'tick-nifty-val',  chgId: 'tick-nifty-chg'  },
+      { sym: '^BSESN',    valId: 'tick-sensex-val', chgId: 'tick-sensex-chg' },
+      { sym: '^INDIAVIX', valId: 'tick-vix-val',    chgId: 'tick-vix-chg'    },
+    ];
+
+    function isMarketOpen() {
+      const now = new Date();
+      // Convert to IST (UTC+5:30)
+      const ist = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
+      const day = ist.getDay(); // 0=Sun, 6=Sat
+      const h = ist.getHours(), m = ist.getMinutes();
+      const mins = h * 60 + m;
+      if (day === 0 || day === 6) return false; // weekend
+      return mins >= 555 && mins <= 930; // 9:15 AM – 3:30 PM IST
+    }
+
+    function updateMarketStatus() {
+      const dot   = document.getElementById('marketDot');
+      const label = document.getElementById('marketLabel');
+      if (!dot || !label) return;
+      if (isMarketOpen()) {
+        dot.className   = 'market-dot open';
+        label.textContent = 'Market Open';
+        label.style.color = '#3FE088';
+      } else {
+        dot.className   = 'market-dot closed';
+        label.textContent = 'Market Closed';
+        label.style.color = 'var(--muted)';
+      }
+    }
+
+    async function fetchTicker() {
+      const PROXY = 'https://api.allorigins.win/get?url=';
+      for (const t of TICKER_SYMBOLS) {
+        try {
+          const yUrl  = encodeURIComponent(
+            `https://query1.finance.yahoo.com/v8/finance/chart/${t.sym}?interval=1d&range=1d`
+          );
+          const res   = await fetch(PROXY + yUrl);
+          const json  = await res.json();
+          const data  = JSON.parse(json.contents);
+          const meta  = data.chart.result[0].meta;
+          const price = meta.regularMarketPrice;
+          const prev  = meta.previousClose || meta.chartPreviousClose;
+          const chgPct = ((price - prev) / prev * 100);
+
+          const valEl = document.getElementById(t.valId);
+          const chgEl = document.getElementById(t.chgId);
+          if (!valEl || !chgEl) continue;
+
+          // Format: VIX shows 2 decimals, others show 2 decimals with comma
+          valEl.textContent = price.toLocaleString('en-IN', {
+            minimumFractionDigits: 2, maximumFractionDigits: 2
+          });
+
+          const sign = chgPct >= 0 ? '+' : '';
+          chgEl.textContent  = sign + chgPct.toFixed(2) + '%';
+          chgEl.className    = 'ticker-change' + (chgPct < 0 ? ' neg' : '');
+        } catch (e) {
+          // silently keep '—' if fetch fails
+        }
+      }
+      updateMarketStatus();
+    }
+
+    // Fetch on load + refresh every 30 seconds
+    fetchTicker();
+    setInterval(fetchTicker, 30000);
+
   </script>
 </body>
 </html>
