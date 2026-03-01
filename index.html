@@ -1892,6 +1892,40 @@
     fetchTicker();
     setInterval(fetchTicker, 30000);
 
+    // ── Mobile Menu Toggle ──────────────────────────────────────────────────
+    const burger = document.getElementById('burger');
+    const mobileNav = document.getElementById('mobileNav');
+    
+    if (burger && mobileNav) {
+      burger.addEventListener('click', () => {
+        const isOpen = mobileNav.classList.contains('open');
+        if (isOpen) {
+          mobileNav.classList.remove('open');
+          burger.setAttribute('aria-expanded', 'false');
+        } else {
+          mobileNav.classList.add('open');
+          burger.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      // Close menu when clicking on a link
+      const mobileLinks = mobileNav.querySelectorAll('a');
+      mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          mobileNav.classList.remove('open');
+          burger.setAttribute('aria-expanded', 'false');
+        });
+      });
+
+      // Close menu when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!mobileNav.contains(e.target) && !burger.contains(e.target) && mobileNav.classList.contains('open')) {
+          mobileNav.classList.remove('open');
+          burger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
   </script>
 </body>
 </html>
