@@ -185,7 +185,18 @@ def max_drawdown(daily, capital):
         dd = min(dd, (cum - peak) / capital)
     return round(dd * 100, 1)
 
-def win_rate(daily):
+def avg_monthly_roi(monthly_pnl, capital):
+    """Average monthly ROI using only months where strategy was active (non-zero)"""
+    if not monthly_pnl:
+        return 0
+    # Exclude current incomplete month
+    complete = monthly_pnl[:-1]
+    active = [v for v in complete if v != 0]
+    if not active:
+        return 0
+    avg = sum(active) / len(active)
+    return round((avg / capital) * 100, 1)
+
     if not daily:
         return 0
     return round(sum(1 for d in daily if d > 0) / len(daily) * 100, 1)
@@ -243,67 +254,74 @@ def build_data():
         'daily_dates': daily_dates,
         'stats': {
             'nap': {
-                'roi':      round(sum(nap_m) / CAP_NAP * 100, 1) if nap_m else 0,
-                'pnl':      round(sum(nap_m)) if nap_m else 0,
-                'sharpe':   sharpe(nap_daily, CAP_NAP),
-                'max_dd':   max_drawdown(nap_daily, CAP_NAP),
-                'win_rate': win_rate(nap_daily),
-                'days':     len(nap_daily),
+                'roi':          round(sum(nap_m) / CAP_NAP * 100, 1) if nap_m else 0,
+                'avg_month_roi': avg_monthly_roi(nap_m, CAP_NAP),
+                'pnl':          round(sum(nap_m)) if nap_m else 0,
+                'sharpe':       sharpe(nap_daily, CAP_NAP),
+                'max_dd':       max_drawdown(nap_daily, CAP_NAP),
+                'win_rate':     win_rate(nap_daily),
+                'days':         len(nap_daily),
             },
             'sap': {
-                'roi':      round(sum(sap_m) / CAP_SAP * 100, 1) if sap_m else 0,
-                'pnl':      round(sum(sap_m)) if sap_m else 0,
-                'sharpe':   sharpe(sap_daily, CAP_SAP),
-                'max_dd':   max_drawdown(sap_daily, CAP_SAP),
-                'win_rate': win_rate(sap_daily),
-                'days':     len(sap_daily),
+                'roi':          round(sum(sap_m) / CAP_SAP * 100, 1) if sap_m else 0,
+                'avg_month_roi': avg_monthly_roi(sap_m, CAP_SAP),
+                'pnl':          round(sum(sap_m)) if sap_m else 0,
+                'sharpe':       sharpe(sap_daily, CAP_SAP),
+                'max_dd':       max_drawdown(sap_daily, CAP_SAP),
+                'win_rate':     win_rate(sap_daily),
+                'days':         len(sap_daily),
             },
             'cap': {
-                'roi':      round(sum(cap_m) / CAP_CAP * 100, 1) if cap_m else 0,
-                'pnl':      round(sum(cap_m)) if cap_m else 0,
-                'sharpe':   sharpe(cap_daily, CAP_CAP),
-                'max_dd':   max_drawdown(cap_daily, CAP_CAP),
-                'win_rate': win_rate(cap_daily),
-                'days':     len([x for x in cap_daily if x != 0]),
+                'roi':          round(sum(cap_m) / CAP_CAP * 100, 1) if cap_m else 0,
+                'avg_month_roi': avg_monthly_roi(cap_m, CAP_CAP),
+                'pnl':          round(sum(cap_m)) if cap_m else 0,
+                'sharpe':       sharpe(cap_daily, CAP_CAP),
+                'max_dd':       max_drawdown(cap_daily, CAP_CAP),
+                'win_rate':     win_rate(cap_daily),
+                'days':         len([x for x in cap_daily if x != 0]),
             },
             'napv2': {
-                'roi':      round(sum(napv2_m) / CAP_NAPV2 * 100, 1) if napv2_m else 0,
-                'pnl':      round(sum(napv2_m)) if napv2_m else 0,
-                'sharpe':   sharpe(napv2_daily, CAP_NAPV2),
-                'max_dd':   max_drawdown(napv2_daily, CAP_NAPV2),
-                'win_rate': win_rate(napv2_daily),
-                'days':     len([x for x in napv2_daily if x != 0]),
+                'roi':          round(sum(napv2_m) / CAP_NAPV2 * 100, 1) if napv2_m else 0,
+                'avg_month_roi': avg_monthly_roi(napv2_m, CAP_NAPV2),
+                'pnl':          round(sum(napv2_m)) if napv2_m else 0,
+                'sharpe':       sharpe(napv2_daily, CAP_NAPV2),
+                'max_dd':       max_drawdown(napv2_daily, CAP_NAPV2),
+                'win_rate':     win_rate(napv2_daily),
+                'days':         len([x for x in napv2_daily if x != 0]),
             },
             'napv3': {
-                'roi':      round(sum(napv3_m) / CAP_NAPV3 * 100, 1) if napv3_m else 0,
-                'pnl':      round(sum(napv3_m)) if napv3_m else 0,
-                'sharpe':   sharpe(napv3_daily, CAP_NAPV3),
-                'max_dd':   max_drawdown(napv3_daily, CAP_NAPV3),
-                'win_rate': win_rate(napv3_daily),
-                'days':     len([x for x in napv3_daily if x != 0]),
+                'roi':          round(sum(napv3_m) / CAP_NAPV3 * 100, 1) if napv3_m else 0,
+                'avg_month_roi': avg_monthly_roi(napv3_m, CAP_NAPV3),
+                'pnl':          round(sum(napv3_m)) if napv3_m else 0,
+                'sharpe':       sharpe(napv3_daily, CAP_NAPV3),
+                'max_dd':       max_drawdown(napv3_daily, CAP_NAPV3),
+                'win_rate':     win_rate(napv3_daily),
+                'days':         len([x for x in napv3_daily if x != 0]),
             },
             'sapv2': {
-                'roi':      round(sum(sapv2_m) / CAP_SAPV2 * 100, 1) if sapv2_m else 0,
-                'pnl':      round(sum(sapv2_m)) if sapv2_m else 0,
-                'sharpe':   sharpe(sapv2_daily, CAP_SAPV2),
-                'max_dd':   max_drawdown(sapv2_daily, CAP_SAPV2),
-                'win_rate': win_rate(sapv2_daily),
-                'days':     len([x for x in sapv2_daily if x != 0]),
+                'roi':          round(sum(sapv2_m) / CAP_SAPV2 * 100, 1) if sapv2_m else 0,
+                'avg_month_roi': avg_monthly_roi(sapv2_m, CAP_SAPV2),
+                'pnl':          round(sum(sapv2_m)) if sapv2_m else 0,
+                'sharpe':       sharpe(sapv2_daily, CAP_SAPV2),
+                'max_dd':       max_drawdown(sapv2_daily, CAP_SAPV2),
+                'win_rate':     win_rate(sapv2_daily),
+                'days':         len([x for x in sapv2_daily if x != 0]),
             },
             'sapv3': {
-                'roi':      round(sum(sapv3_m) / CAP_SAPV3 * 100, 1) if sapv3_m else 0,
-                'pnl':      round(sum(sapv3_m)) if sapv3_m else 0,
-                'sharpe':   sharpe(sapv3_daily, CAP_SAPV3),
-                'max_dd':   max_drawdown(sapv3_daily, CAP_SAPV3),
-                'win_rate': win_rate(sapv3_daily),
-                'days':     len([x for x in sapv3_daily if x != 0]),
+                'roi':          round(sum(sapv3_m) / CAP_SAPV3 * 100, 1) if sapv3_m else 0,
+                'avg_month_roi': avg_monthly_roi(sapv3_m, CAP_SAPV3),
+                'pnl':          round(sum(sapv3_m)) if sapv3_m else 0,
+                'sharpe':       sharpe(sapv3_daily, CAP_SAPV3),
+                'max_dd':       max_drawdown(sapv3_daily, CAP_SAPV3),
+                'win_rate':     win_rate(sapv3_daily),
+                'days':         len([x for x in sapv3_daily if x != 0]),
             },
             'comb': {
-                'roi':      round((sum(nap_m) + sum(sap_m)) / (CAP_NAP + CAP_SAP) * 100, 1) if nap_m and sap_m else 0,
-                'pnl':      round(sum(nap_m) + sum(sap_m)) if nap_m and sap_m else 0,
-                'sharpe':   sharpe(comb_daily, CAP_NAP + CAP_SAP),
-                'max_dd':   max_drawdown(comb_daily, CAP_NAP + CAP_SAP),
-                'win_rate': win_rate(comb_daily),
+                'roi':          round((sum(nap_m) + sum(sap_m)) / (CAP_NAP + CAP_SAP) * 100, 1) if nap_m and sap_m else 0,
+                'pnl':          round(sum(nap_m) + sum(sap_m)) if nap_m and sap_m else 0,
+                'sharpe':       sharpe(comb_daily, CAP_NAP + CAP_SAP),
+                'max_dd':       max_drawdown(comb_daily, CAP_NAP + CAP_SAP),
+                'win_rate':     win_rate(comb_daily),
             },
         },
     }
