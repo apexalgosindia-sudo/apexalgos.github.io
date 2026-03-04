@@ -2219,6 +2219,7 @@
   "stats": {
     "nap": {
       "roi": 63.2,
+      "avg_month_roi": 5.0,
       "pnl": 157876,
       "sharpe": 3.18,
       "max_dd": -11.4,
@@ -2227,6 +2228,7 @@
     },
     "sap": {
       "roi": 39.9,
+      "avg_month_roi": 3.2,
       "pnl": 99670,
       "sharpe": 2.45,
       "max_dd": -7.7,
@@ -2235,6 +2237,7 @@
     },
     "cap": {
       "roi": 0.5,
+      "avg_month_roi": 0.1,
       "pnl": 2360,
       "sharpe": 0.15,
       "max_dd": -4.2,
@@ -2243,6 +2246,7 @@
     },
     "napv2": {
       "roi": 23.0,
+      "avg_month_roi": 4.8,
       "pnl": 57460,
       "sharpe": 2.31,
       "max_dd": -5.9,
@@ -2251,6 +2255,7 @@
     },
     "napv3": {
       "roi": 21.9,
+      "avg_month_roi": 4.7,
       "pnl": 54744,
       "sharpe": 2.15,
       "max_dd": -6.6,
@@ -2259,6 +2264,7 @@
     },
     "sapv2": {
       "roi": 9.7,
+      "avg_month_roi": 2.8,
       "pnl": 24207,
       "sharpe": 1.4,
       "max_dd": -6.5,
@@ -2267,6 +2273,7 @@
     },
     "sapv3": {
       "roi": 2.7,
+      "avg_month_roi": 0.8,
       "pnl": 6848,
       "sharpe": 0.36,
       "max_dd": -5.3,
