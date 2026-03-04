@@ -1070,10 +1070,25 @@
     refreshPnL();
     setInterval(refreshPnL, 5 * 60 * 1000);
 
-    // ── Avg Monthly ROI from data.json (same source as P&L section) ──────────
-    // Capital deployed per strategy (₹)
-    const CAP_NAP = 250000;
-    const CAP_SAP = 250000;
+    // ── Avg Monthly ROI from data.json ───────────────────────────────────────
+    const CAPITALS = {
+      nap:   250000,
+      sap:   250000,
+      cap:   500000,
+      napv2: 250000,
+      napv3: 250000,
+      sapv2: 250000,
+      sapv3: 250000,
+    };
+
+    function avgMonthlyROI(monthlyPnL, capital) {
+      if (!monthlyPnL || monthlyPnL.length === 0) return null;
+      // Exclude current (incomplete) month — last entry
+      const complete = monthlyPnL.slice(0, -1);
+      if (complete.length === 0) return null;
+      const avg = complete.reduce((a, b) => a + b, 0) / complete.length;
+      return (avg / capital) * 100;
+    }
 
     function setRoiEl(id, roi) {
       const el = document.getElementById(id);
@@ -1087,15 +1102,7 @@
       const sign = roi >= 0 ? '+' : '';
       el.textContent = sign + roi.toFixed(1) + '% / mo';
       el.classList.toggle('neg', roi < 0);
-    }
-
-    function avgMonthlyROI(monthlyPnL, capital) {
-      if (!monthlyPnL || monthlyPnL.length === 0) return null;
-      // Exclude the current (incomplete) month — last entry
-      const complete = monthlyPnL.slice(0, -1);
-      if (complete.length === 0) return null;
-      const avg = complete.reduce((a, b) => a + b, 0) / complete.length;
-      return (avg / capital) * 100;
+      el.style.color = '';
     }
 
     async function loadAvgROIs() {
@@ -1104,14 +1111,13 @@
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const d = await res.json();
 
-        // NAP — tracked in data.json
-        setRoiEl('roi-nap', avgMonthlyROI(d.nap_monthly, CAP_NAP));
-        // SAP — tracked in data.json
-        setRoiEl('roi-sap', avgMonthlyROI(d.sap_monthly, CAP_SAP));
-
-        // CAP, NAP v2/v3, SAP v2/v3 — not yet in data.json, show N/A
-        ['roi-cap', 'roi-napv2', 'roi-napv3', 'roi-sapv2', 'roi-sapv3']
-          .forEach(id => setRoiEl(id, null));
+        setRoiEl('roi-nap',   avgMonthlyROI(d.nap_monthly,   CAPITALS.nap));
+        setRoiEl('roi-sap',   avgMonthlyROI(d.sap_monthly,   CAPITALS.sap));
+        setRoiEl('roi-cap',   avgMonthlyROI(d.cap_monthly,   CAPITALS.cap));
+        setRoiEl('roi-napv2', avgMonthlyROI(d.napv2_monthly, CAPITALS.napv2));
+        setRoiEl('roi-napv3', avgMonthlyROI(d.napv3_monthly, CAPITALS.napv3));
+        setRoiEl('roi-sapv2', avgMonthlyROI(d.sapv2_monthly, CAPITALS.sapv2));
+        setRoiEl('roi-sapv3', avgMonthlyROI(d.sapv3_monthly, CAPITALS.sapv3));
 
       } catch(e) {
         console.warn('Avg ROI load failed:', e.message);
