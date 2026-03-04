@@ -1,6 +1,7 @@
 """
 Fetches Apex Algos P&L data from Google Sheets and writes data.json.
 Runs as a GitHub Action — no API key needed, sheet must be public.
+FIXED VERSION: Proper date parsing and ordering
 """
 import requests, json, csv, io, datetime, statistics, sys
 
@@ -42,15 +43,16 @@ def parse_monthly(raw_csv):
     return result
 
 def parse_daily(raw_csv):
-    """Parse DAILY P&L sheet — returns (nap_list, sap_list) sorted oldest first."""
+    """Parse DAILY P&L sheet — returns (dates, nap_list, sap_list) sorted oldest first."""
     reader = csv.reader(io.StringIO(raw_csv))
     rows   = list(reader)
-    nap_d, sap_d = [], []
+    data = []
+    
     for row in rows:
         if not row or not row[0].strip():
             continue
         try:
-            datetime.datetime.strptime(row[0].strip(), '%m/%d/%Y')
+            d = datetime.datetime.strptime(row[0].strip(), '%m/%d/%Y')
         except ValueError:
             continue
         try:
@@ -58,9 +60,23 @@ def parse_daily(raw_csv):
             sap = float(row[4].replace(',','').replace('"','').strip()) if len(row) > 4 and row[4].strip() else None
         except (ValueError, IndexError):
             continue
-        if nap is not None: nap_d.append(nap)
-        if sap is not None: sap_d.append(sap)
-    return list(reversed(nap_d)), list(reversed(sap_d))
+        
+        # Store date along with values
+        data.append({
+            'date': d,
+            'nap': nap,
+            'sap': sap
+        })
+    
+    # Sort by date (oldest first)
+    data.sort(key=lambda x: x['date'])
+    
+    # Extract into separate lists
+    dates = [d['date'].strftime('%d %b %y') for d in data]
+    nap_list = [d['nap'] if d['nap'] is not None else 0 for d in data]
+    sap_list = [d['sap'] if d['sap'] is not None else 0 for d in data]
+    
+    return dates, nap_list, sap_list
 
 def sharpe(daily, capital):
     if len(daily) < 2:
@@ -88,12 +104,12 @@ def build_data():
     monthly     = parse_monthly(monthly_csv)
 
     print("Fetching Daily P&L...")
-    daily_csv       = fetch_csv('DAILY P&L')
-    nap_daily, sap_daily = parse_daily(daily_csv)
+    daily_csv = fetch_csv('DAILY P&L')
+    daily_dates, nap_daily, sap_daily = parse_daily(daily_csv)
 
-    months    = []
-    nap_m     = []
-    sap_m     = []
+    months = []
+    nap_m = []
+    sap_m = []
     for row in monthly:
         d = datetime.datetime.strptime(row['date'], '%Y-%m')
         months.append(d.strftime('%b %y'))
@@ -102,24 +118,13 @@ def build_data():
 
     comb_daily = [n + s for n, s in zip(nap_daily, sap_daily)]
 
-    # Build daily arrays for the daily view toggle
-    # Trim to same length
-    min_len = min(len(nap_daily), len(sap_daily))
-    nap_d = nap_daily[:min_len]
-    sap_d = sap_daily[:min_len]
-
-    # Generate date labels for daily data (approximate, based on count)
-    # The actual dates come from the sheet parse — use index-based labels
-    # We'll store them as-is; the sheet parser can add real dates later
-    daily_dates = [f"D{i+1}" for i in range(min_len)]
-
     data = {
         'updated':     datetime.date.today().isoformat(),
         'months':      months,
         'nap_monthly': nap_m,
         'sap_monthly': sap_m,
-        'nap_daily':   [round(v, 2) for v in nap_d],
-        'sap_daily':   [round(v, 2) for v in sap_d],
+        'nap_daily':   nap_daily,
+        'sap_daily':   sap_daily,
         'daily_dates': daily_dates,
         'stats': {
             'nap': {
@@ -147,6 +152,10 @@ def build_data():
             },
         },
     }
+    
+    print(f"✓ Parsed {len(nap_daily)} daily records")
+    print(f"✓ Date range: {daily_dates[0]} to {daily_dates[-1]}")
+    
     return data
 
 if __name__ == '__main__':
@@ -157,4 +166,6 @@ if __name__ == '__main__':
         print(f"✓ data.json written — {len(data['months'])} months, updated {data['updated']}")
     except Exception as e:
         print(f"✗ Error: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
         sys.exit(1)
