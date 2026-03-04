@@ -65,15 +65,27 @@ def parse_daily_pnl(raw_csv):
     
     print(f"  Found {len(rows)} total rows")
     
-    # Skip first 6 rows (headers — data starts row 7)
-    for i, row in enumerate(rows[6:], start=6):
+    # Debug: print first 10 rows to understand structure
+    print("  DEBUG — first 10 rows:")
+    for i, row in enumerate(rows[:10]):
+        print(f"    Row {i}: {row[:5]}")  # print first 5 cols only
+    
+    # Try to auto-detect the first data row by finding where dates start
+    start_row = 0
+    for i, row in enumerate(rows):
+        if row and row[0].strip():
+            parsed = parse_date_ddmmyy(row[0])
+            if parsed:
+                start_row = i
+                print(f"  Auto-detected data start at row {i}: '{row[0]}'")
+                break
+
+    for i, row in enumerate(rows[start_row:], start=start_row):
         if not row or not row[0].strip():
             continue
         
-        # Parse date from first column (DD-MM-YY format)
         date = parse_date_ddmmyy(row[0])
         if not date:
-            print(f"  Skipping row {i}: couldn't parse date '{row[0]}'")
             continue
 
         def get_col(col_idx):
@@ -99,7 +111,6 @@ def parse_daily_pnl(raw_csv):
                 'sapv3': sapv3 if sapv3 is not None else 0,
             })
     
-    # Sort by date (oldest first)
     data.sort(key=lambda x: x['date'])
     
     dates  = [d['date'].strftime('%d/%m/%y') for d in data]
