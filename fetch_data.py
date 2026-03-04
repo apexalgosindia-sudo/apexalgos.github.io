@@ -1,7 +1,7 @@
 """
 Fetches Apex Algos P&L data from Google Sheets and writes data.json.
 Runs as a GitHub Action — no API key needed, sheet must be public.
-FIXED VERSION: Proper date parsing and ordering
+UPDATED: Proper date parsing, DD/MM/YY format, and data ordering
 """
 import requests, json, csv, io, datetime, statistics, sys
 
@@ -38,7 +38,7 @@ def parse_monthly(raw_csv):
             sap = float(row[3].replace(',', '').replace('"','').strip()) if len(row) > 3 and row[3].strip() else 0
         except (ValueError, IndexError):
             continue
-        result.append({'date': d.strftime('%Y-%m'), 'nap': nap, 'sap': sap})
+        result.append({'date': d.strftime('%Y-%m'), 'nap': nap, 'sap': sap, 'date_obj': d})
     result.sort(key=lambda x: x['date'])
     return result
 
@@ -71,8 +71,8 @@ def parse_daily(raw_csv):
     # Sort by date (oldest first)
     data.sort(key=lambda x: x['date'])
     
-    # Extract into separate lists
-    dates = [d['date'].strftime('%d %b %y') for d in data]
+    # Extract into separate lists with DD/MM/YY format
+    dates = [d['date'].strftime('%d/%m/%y') for d in data]
     nap_list = [d['nap'] if d['nap'] is not None else 0 for d in data]
     sap_list = [d['sap'] if d['sap'] is not None else 0 for d in data]
     
@@ -111,15 +111,19 @@ def build_data():
     nap_m = []
     sap_m = []
     for row in monthly:
-        d = datetime.datetime.strptime(row['date'], '%Y-%m')
+        # Format as "Mon YY" for display
+        d = row['date_obj']
         months.append(d.strftime('%b %y'))
         nap_m.append(row['nap'])
         sap_m.append(row['sap'])
 
     comb_daily = [n + s for n, s in zip(nap_daily, sap_daily)]
 
+    # Get today's date in DD/MM/YY format
+    today_formatted = datetime.date.today().strftime('%d/%m/%y')
+
     data = {
-        'updated':     datetime.date.today().isoformat(),
+        'updated':     today_formatted,  # Changed to DD/MM/YY
         'months':      months,
         'nap_monthly': nap_m,
         'sap_monthly': sap_m,
@@ -155,6 +159,7 @@ def build_data():
     
     print(f"✓ Parsed {len(nap_daily)} daily records")
     print(f"✓ Date range: {daily_dates[0]} to {daily_dates[-1]}")
+    print(f"✓ Updated date: {today_formatted}")
     
     return data
 
