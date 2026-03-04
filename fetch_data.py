@@ -65,12 +65,7 @@ def parse_daily_pnl(raw_csv):
     
     print(f"  Found {len(rows)} total rows")
     
-    # Debug: print first 10 rows to understand structure
-    print("  DEBUG — first 10 rows:")
-    for i, row in enumerate(rows[:10]):
-        print(f"    Row {i}: {row[:5]}")  # print first 5 cols only
-    
-    # Try to auto-detect the first data row by finding where dates start
+    # Auto-detect the first data row by finding where dates start
     start_row = 0
     for i, row in enumerate(rows):
         if row and row[0].strip():
