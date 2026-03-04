@@ -1822,6 +1822,8 @@
 
       updateMetrics(nap_monthly, sap_monthly);
       fetchSheetData();
+      // Auto-refresh chart & P&L data every 5 minutes
+      setInterval(fetchSheetData, 5 * 60 * 1000);
     });
 
     // ── Live Market Ticker — NIFTY / SENSEX / India VIX ─────────────────────
