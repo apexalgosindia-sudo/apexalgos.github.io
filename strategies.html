@@ -1086,7 +1086,10 @@
       // Exclude current (incomplete) month — last entry
       const complete = monthlyPnL.slice(0, -1);
       if (complete.length === 0) return null;
-      const avg = complete.reduce((a, b) => a + b, 0) / complete.length;
+      // Only count months where strategy was active (non-zero P&L)
+      const activePnL = complete.filter(v => v !== 0);
+      if (activePnL.length === 0) return null;
+      const avg = activePnL.reduce((a, b) => a + b, 0) / activePnL.length;
       return (avg / capital) * 100;
     }
 
@@ -1110,14 +1113,15 @@
         const res = await fetch('./data.json?t=' + Date.now());
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const d = await res.json();
+        const s = d.stats;
 
-        setRoiEl('roi-nap',   avgMonthlyROI(d.nap_monthly,   CAPITALS.nap));
-        setRoiEl('roi-sap',   avgMonthlyROI(d.sap_monthly,   CAPITALS.sap));
-        setRoiEl('roi-cap',   avgMonthlyROI(d.cap_monthly,   CAPITALS.cap));
-        setRoiEl('roi-napv2', avgMonthlyROI(d.napv2_monthly, CAPITALS.napv2));
-        setRoiEl('roi-napv3', avgMonthlyROI(d.napv3_monthly, CAPITALS.napv3));
-        setRoiEl('roi-sapv2', avgMonthlyROI(d.sapv2_monthly, CAPITALS.sapv2));
-        setRoiEl('roi-sapv3', avgMonthlyROI(d.sapv3_monthly, CAPITALS.sapv3));
+        setRoiEl('roi-nap',   s.nap?.avg_month_roi   ?? null);
+        setRoiEl('roi-sap',   s.sap?.avg_month_roi   ?? null);
+        setRoiEl('roi-cap',   s.cap?.avg_month_roi   ?? null);
+        setRoiEl('roi-napv2', s.napv2?.avg_month_roi ?? null);
+        setRoiEl('roi-napv3', s.napv3?.avg_month_roi ?? null);
+        setRoiEl('roi-sapv2', s.sapv2?.avg_month_roi ?? null);
+        setRoiEl('roi-sapv3', s.sapv3?.avg_month_roi ?? null);
 
       } catch(e) {
         console.warn('Avg ROI load failed:', e.message);
