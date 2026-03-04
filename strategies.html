@@ -1070,83 +1070,57 @@
     refreshPnL();
     setInterval(refreshPnL, 5 * 60 * 1000);
 
-    // ── Avg Monthly ROI from Google Sheet ────────────────────────────────────
-    const SHEET_ID = '1Rgy-HH8bcY7guN7PuH6biiK-JVV-PaFOH5aDII8oVf8';
+    // ── Avg Monthly ROI from data.json (same source as P&L section) ──────────
+    // Capital deployed per strategy (₹)
+    const CAP_NAP = 250000;
+    const CAP_SAP = 250000;
 
-    // Map: elementId → { gid: sheet tab gid, capital: capital deployed in ₹ }
-    // gid values correspond to the sheet tabs — update if your sheet tabs differ
-    const STRATEGIES = [
-      { id: 'roi-nap',   gid: '0',          capital: 150000 },
-      { id: 'roi-sap',   gid: '1903391976', capital: 150000 },
-      { id: 'roi-cap',   gid: '1234567890', capital: 100000 },
-      { id: 'roi-napv2', gid: '2000000001', capital: 100000 },
-      { id: 'roi-napv3', gid: '2000000002', capital: 100000 },
-      { id: 'roi-sapv2', gid: '2000000003', capital: 100000 },
-      { id: 'roi-sapv3', gid: '2000000004', capital: 100000 },
-    ];
-
-    async function fetchSheetCSV(gid) {
-      const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${gid}`;
-      const res = await fetch(url);
-      if (!res.ok) throw new Error('Sheet fetch failed: ' + res.status);
-      return await res.text();
-    }
-
-    function parseMonthlyPnL(csv) {
-      // Parse CSV rows, look for numeric P&L values in a "Monthly P&L" or similar column
-      const rows = csv.split('\n').map(r => r.split(',').map(c => c.replace(/["'\r]/g, '').trim()));
-      if (rows.length < 2) return null;
-
-      // Try to detect a header row with month/pnl columns
-      const header = rows[0].map(h => h.toLowerCase());
-      let pnlCol = header.findIndex(h => h.includes('pnl') || h.includes('profit') || h.includes('p&l') || h.includes('net'));
-      if (pnlCol === -1) pnlCol = 1; // fallback: second column
-
-      const values = [];
-      for (let i = 1; i < rows.length; i++) {
-        const raw = rows[i][pnlCol];
-        if (!raw) continue;
-        const num = parseFloat(raw.replace(/[₹,\s]/g, ''));
-        if (!isNaN(num)) values.push(num);
-      }
-      return values.length ? values : null;
-    }
-
-    function setRoiEl(id, roi, error) {
+    function setRoiEl(id, roi) {
       const el = document.getElementById(id);
       if (!el) return;
-      if (error || roi === null) {
+      el.classList.remove('loading');
+      if (roi === null) {
         el.textContent = 'N/A';
-        el.classList.remove('loading', 'neg');
         el.style.color = 'var(--muted)';
         return;
       }
-      el.classList.remove('loading');
       const sign = roi >= 0 ? '+' : '';
-      el.textContent = sign + roi.toFixed(1) + '%';
-      if (roi < 0) el.classList.add('neg');
-      else el.classList.remove('neg');
+      el.textContent = sign + roi.toFixed(1) + '% / mo';
+      el.classList.toggle('neg', roi < 0);
     }
 
-    async function loadAvgROI(strat) {
+    function avgMonthlyROI(monthlyPnL, capital) {
+      if (!monthlyPnL || monthlyPnL.length === 0) return null;
+      // Exclude the current (incomplete) month — last entry
+      const complete = monthlyPnL.slice(0, -1);
+      if (complete.length === 0) return null;
+      const avg = complete.reduce((a, b) => a + b, 0) / complete.length;
+      return (avg / capital) * 100;
+    }
+
+    async function loadAvgROIs() {
       try {
-        const csv = await fetchSheetCSV(strat.gid);
-        const pnlValues = parseMonthlyPnL(csv);
-        if (!pnlValues || pnlValues.length === 0) {
-          setRoiEl(strat.id, null, true);
-          return;
-        }
-        const avgPnL = pnlValues.reduce((a, b) => a + b, 0) / pnlValues.length;
-        const avgROI = (avgPnL / strat.capital) * 100;
-        setRoiEl(strat.id, avgROI, false);
-      } catch (e) {
-        console.warn('ROI fetch failed for', strat.id, e.message);
-        setRoiEl(strat.id, null, true);
+        const res = await fetch('./data.json?t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const d = await res.json();
+
+        // NAP — tracked in data.json
+        setRoiEl('roi-nap', avgMonthlyROI(d.nap_monthly, CAP_NAP));
+        // SAP — tracked in data.json
+        setRoiEl('roi-sap', avgMonthlyROI(d.sap_monthly, CAP_SAP));
+
+        // CAP, NAP v2/v3, SAP v2/v3 — not yet in data.json, show N/A
+        ['roi-cap', 'roi-napv2', 'roi-napv3', 'roi-sapv2', 'roi-sapv3']
+          .forEach(id => setRoiEl(id, null));
+
+      } catch(e) {
+        console.warn('Avg ROI load failed:', e.message);
+        ['roi-nap','roi-sap','roi-cap','roi-napv2','roi-napv3','roi-sapv2','roi-sapv3']
+          .forEach(id => setRoiEl(id, null));
       }
     }
 
-    // Load all strategy ROIs in parallel
-    STRATEGIES.forEach(s => loadAvgROI(s));
+    loadAvgROIs();
   </script>
 
   <footer>
